@@ -22,6 +22,8 @@ def main():
     direction = 'RIGHT'
     change_direction = direction
 
+    apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
+                 random.randrange(1, (resolution[1]//cell)) * cell]
 
     # 2. Game Loop
     running = True
@@ -67,6 +69,9 @@ def main():
         for segment in snake_body:
             pygame.draw.rect(screen, green, pygame.Rect(
                 segment[0], segment[1], cell, cell))
+        
+        pygame.draw.rect(screen, red, pygame.Rect(
+            apple_pos[0], apple_pos[1], cell, cell))
 
         pygame.display.flip()
         fps.tick(game_speed)
