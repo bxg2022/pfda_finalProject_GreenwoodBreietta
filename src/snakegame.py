@@ -24,6 +24,7 @@ def main():
 
     apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
                  random.randrange(1, (resolution[1]//cell)) * cell]
+    apple_spawn = True
 
     # 2. Game Loop
     running = True
@@ -63,7 +64,14 @@ def main():
 
             
         snake_body.insert(0, list(snake_pos))
-        snake_body.pop()
+        if snake_pos[0] == apple_pos[0] and snake_pos[1] == apple_pos[1]:
+            apple_spawn = False
+        else:
+            snake_body.pop()
+        if not apple_spawn:
+            apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
+                        random.randrange(1, (resolution[1]//cell)) * cell]
+            apple_spawn = True
         
         screen.fill(black)
         for segment in snake_body:
