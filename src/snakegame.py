@@ -18,7 +18,7 @@ def main():
     fps = pygame.time.Clock()
 
     snake_body = [[100,50], [90,50], [80,50], [70,50]]
-    snake_pos = snake_body[0]
+    snake_pos = [100,50]
     direction = 'RIGHT'
     change_direction = direction
 
@@ -85,6 +85,10 @@ def main():
             running = False
         if snake_pos[1] < 0 or snake_pos[1] > resolution[1] - cell:
             running = False
+        for segment in snake_body[1:]:
+            if snake_pos[0] == segment[0] and snake_pos[1] == segment[1]:
+                running = False
+
 
         pygame.display.flip()
         fps.tick(game_speed)
