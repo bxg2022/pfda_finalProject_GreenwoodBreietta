@@ -80,6 +80,11 @@ def main():
         
         pygame.draw.rect(screen, red, pygame.Rect(
             apple_pos[0], apple_pos[1], cell, cell))
+        
+        if snake_pos[0] < 0 or snake_pos[0] > resolution[0] - cell:
+            running = False
+        if snake_pos[1] < 0 or snake_pos[1] > resolution[1] - cell:
+            running = False
 
         pygame.display.flip()
         fps.tick(game_speed)
