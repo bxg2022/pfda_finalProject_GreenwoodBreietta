@@ -1,7 +1,14 @@
 import pygame
 import random
 import time
-      
+
+
+def display_score(choice, current_score, surface):
+    score_font = pygame.font.SysFont("impact", 30)
+    score_surface = score_font.render('Score : ' + str(current_score), True, 
+                                      pygame.Color(255, 255, 255))
+    score_rect = score_surface.get_rect()
+    surface.blit(score_surface, score_rect)
 
 def main():
     # 1. Initialize
@@ -14,14 +21,15 @@ def main():
     black = pygame.Color(0, 0, 0)
     red = pygame.Color(255, 0, 0)
     green = pygame.Color(0, 255, 0)
+    white = pygame.Color(255, 255, 255)
     screen = pygame.display.set_mode((resolution))
     fps = pygame.time.Clock()
-
+    
     snake_body = [[100,50], [90,50], [80,50], [70,50]]
     snake_pos = [100,50]
     direction = 'RIGHT'
     change_direction = direction
-
+   
     apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
                  random.randrange(1, (resolution[1]//cell)) * cell]
     apple_spawn = True
@@ -65,6 +73,7 @@ def main():
             
         snake_body.insert(0, list(snake_pos))
         if snake_pos[0] == apple_pos[0] and snake_pos[1] == apple_pos[1]:
+            score += 10
             apple_spawn = False
         else:
             snake_body.pop()
@@ -89,7 +98,7 @@ def main():
             if snake_pos[0] == segment[0] and snake_pos[1] == segment[1]:
                 running = False
 
-
+        display_score(1, score, screen)
         pygame.display.flip()
         fps.tick(game_speed)
     # 3. Quit
