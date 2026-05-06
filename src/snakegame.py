@@ -9,6 +9,18 @@ def display_score(choice, current_score, surface):
                                       pygame.Color(255, 255, 255))
     score_rect = score_surface.get_rect()
     surface.blit(score_surface, score_rect)
+ 
+def game_over(current_score, surface):
+    font = pygame.font.SysFont('times new roman', 50)
+    game_over_surface = font.render(f'Game Over! \n Your Score is : {current_score}', True, 
+                                    pygame.Color(255, 255, 255))
+    game_over_rect = game_over_surface.get_rect()
+    game_over_rect.midtop = (400, 200)
+    surface.blit(game_over_surface, game_over_rect)
+    pygame.display.flip()
+    time.sleep(3)
+    pygame.quit()
+    quit()
 
 def main():
     # 1. Initialize
@@ -91,12 +103,12 @@ def main():
             apple_pos[0], apple_pos[1], cell, cell))
         
         if snake_pos[0] < 0 or snake_pos[0] > resolution[0] - cell:
-            running = False
+            game_over(score, screen)
         if snake_pos[1] < 0 or snake_pos[1] > resolution[1] - cell:
-            running = False
+            game_over(score, screen)
         for segment in snake_body[1:]:
             if snake_pos[0] == segment[0] and snake_pos[1] == segment[1]:
-                running = False
+                game_over(score, screen)
 
         display_score(1, score, screen)
         pygame.display.flip()
