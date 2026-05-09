@@ -3,13 +3,12 @@ import random
 import time
 
 
-def display_score(choice, current_score, surface):
-    score_font = pygame.font.SysFont("impact", 30)
-    score_surface = score_font.render('Score : ' + str(current_score), True, 
+def display_score(current_score, surface):
+    score_font = pygame.font.SysFont("impact", 20)
+    score_surface = score_font.render(f'Score : {current_score}', True, 
                                       pygame.Color(255, 255, 255))
-    score_rect = score_surface.get_rect()
-    surface.blit(score_surface, score_rect)
- 
+    surface.blit(score_surface, (0, 0))
+    
 def game_over(current_score, surface):
     font = pygame.font.SysFont('times new roman', 50)
     game_over_surface = font.render(f'Game Over! \n Your Score is : {current_score}', True, 
@@ -26,6 +25,7 @@ def main():
     # 1. Initialize
     pygame.init()
     pygame.display.set_caption('Snake Game')
+    clock = pygame.time.Clock()
     resolution = (800, 600)
     game_speed = 15
     cell = 10
@@ -34,8 +34,8 @@ def main():
     red = pygame.Color(255, 0, 0)
     green = pygame.Color(0, 255, 0)
     white = pygame.Color(255, 255, 255)
+    gold = pygame.Color(255, 200, 0)
     screen = pygame.display.set_mode((resolution))
-    fps = pygame.time.Clock()
     
     snake_body = [[100,50], [90,50], [80,50], [70,50]]
     snake_pos = [100,50]
@@ -46,6 +46,15 @@ def main():
                  random.randrange(1, (resolution[1]//cell)) * cell]
     apple_spawn = True
 
+    golden_apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
+                        random.randrange(1, (resolution[1]//cell)) * cell]
+    golden_apple_spawn = False
+    spawn_delay_event = pygame.USEREVENT + 1
+    gold_interval = 5000
+    pygame.time.set_timer(spawn_delay_event, gold_interval)
+
+
+
     # 2. Game Loop
     running = True
     while running:
@@ -53,6 +62,9 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == spawn_delay_event:
+                golden_apple_spawn = True
+                pygame.time.set_timer(spawn_delay_event, 0)
             # Keyboard inputs for snake movement
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
@@ -94,6 +106,19 @@ def main():
                         random.randrange(1, (resolution[1]//cell)) * cell]
             apple_spawn = True
         
+        if snake_pos[0] == golden_apple_pos[0] and snake_pos[1] == golden_apple_pos[1]:
+            score += 30
+            if len(snake_body) > 1:
+                snake_body.pop()
+            golden_apple_spawn = False
+        else:
+            snake_body.pop
+        if not golden_apple_spawn:
+            golden_apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
+                        random.randrange(1, (resolution[1]//cell)) * cell]
+            pygame.time.set_timer(spawn_delay_event, 5000)
+            golden_apple_spawn = True
+        
         screen.fill(black)
         for segment in snake_body:
             pygame.draw.rect(screen, green, pygame.Rect(
@@ -101,6 +126,9 @@ def main():
         
         pygame.draw.rect(screen, red, pygame.Rect(
             apple_pos[0], apple_pos[1], cell, cell))
+        
+        pygame.draw.rect(screen, gold, pygame.Rect(
+            golden_apple_pos[0], golden_apple_pos[1], cell, cell))
         
         if snake_pos[0] < 0 or snake_pos[0] > resolution[0] - cell:
             game_over(score, screen)
@@ -110,9 +138,9 @@ def main():
             if snake_pos[0] == segment[0] and snake_pos[1] == segment[1]:
                 game_over(score, screen)
 
-        display_score(1, score, screen)
+        display_score(score, screen)
         pygame.display.flip()
-        fps.tick(game_speed)
+        clock.tick(game_speed)
     # 3. Quit
     pygame.quit()
 
