@@ -47,18 +47,17 @@ def main():
                  random.randrange(1, (resolution[1]//cell)) * cell]
     apple_spawn = True
 
-    golden_apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
-                        random.randrange(1, (resolution[1]//cell)) * cell]
+    golden_apple_pos = None
     golden_apple_spawn = False
-    spawn_delay_event = pygame.USEREVENT + 1
-    gold_interval = 5000
-    pygame.time.set_timer(spawn_delay_event, gold_interval)
+    golden_apple_cooldown = 20
+    golden_apple_available = 0
 
-    speed_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
-                 random.randrange(1, (resolution[1]//cell)) * cell]
-    speed_spawn = True
+
+    speed_pos = None
+    speed_spawn = False
     speed_slow = 0
-
+    speed_cooldown = 5
+    speed_available = 0
 
 
     # 2. Game Loop
@@ -99,6 +98,7 @@ def main():
 
             
         snake_body.insert(0, list(snake_pos))
+        #Snake eats apple
         if snake_pos[0] == apple_pos[0] and snake_pos[1] == apple_pos[1]:
             score += 10
             apple_spawn = False
@@ -108,26 +108,31 @@ def main():
             apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
                         random.randrange(1, (resolution[1]//cell)) * cell]
             apple_spawn = True
-        
-        if snake_pos[0] == golden_apple_pos[0] and snake_pos[1] == golden_apple_pos[1]:
+        #Snake eats golden apple
+        if golden_apple_spawn and (snake_pos[0] == golden_apple_pos[0] and 
+                                   snake_pos[1] == golden_apple_pos[1]):
             score += 30
             if len(snake_body) > 1:
                 snake_body.pop()
             golden_apple_spawn = False
-        if not golden_apple_spawn:
+            golden_apple_available = time.time() + golden_apple_cooldown
+        if not golden_apple_spawn and time.time() >= golden_apple_available:
             golden_apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
                         random.randrange(1, (resolution[1]//cell)) * cell]
             golden_apple_spawn = True
-
-        if snake_pos[0] == speed_pos[0] and snake_pos[1] == speed_pos[1]:
+        #Snake eats speed pickup
+        if speed_spawn and (snake_pos[0] == speed_pos[0] and snake_pos[1] == speed_pos[1]):
             if speed_slow < score:
                 speed_slow += 50
             speed_spawn = False
-        if not speed_spawn:
+            speed_pos = None
+            speed_available = time.time() + speed_cooldown
+        if not speed_spawn and time.time() >= speed_available:
             speed_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
                         random.randrange(1, (resolution[1]//cell)) * cell]
             speed_spawn = True
         
+        #Draw everything
         screen.fill(black)
         for segment in snake_body:
             pygame.draw.rect(screen, green, pygame.Rect(
@@ -136,12 +141,15 @@ def main():
         pygame.draw.rect(screen, red, pygame.Rect(
             apple_pos[0], apple_pos[1], cell, cell))
         
-        pygame.draw.rect(screen, gold, pygame.Rect(
-            golden_apple_pos[0], golden_apple_pos[1], cell, cell))
+        if golden_apple_spawn and golden_apple_pos:
+            pygame.draw.rect(screen, gold, pygame.Rect(
+                golden_apple_pos[0], golden_apple_pos[1], cell, cell))
         
-        pygame.draw.rect(screen, blue, pygame.Rect(
-            speed_pos[0], speed_pos[1], cell, cell))
+        if speed_spawn and speed_pos:
+            pygame.draw.rect(screen, blue, pygame.Rect(
+                speed_pos[0], speed_pos[1], cell, cell))
         
+        #Collision, game over conditions
         if snake_pos[0] < 0 or snake_pos[0] > resolution[0] - cell:
             game_over(score, screen)
         if snake_pos[1] < 0 or snake_pos[1] > resolution[1] - cell:
