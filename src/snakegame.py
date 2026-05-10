@@ -35,6 +35,7 @@ def main():
     green = pygame.Color(0, 255, 0)
     white = pygame.Color(255, 255, 255)
     gold = pygame.Color(255, 200, 0)
+    blue = pygame.Color(0, 0, 255)
     screen = pygame.display.set_mode((resolution))
     
     snake_body = [[100,50], [90,50], [80,50], [70,50]]
@@ -53,6 +54,11 @@ def main():
     gold_interval = 5000
     pygame.time.set_timer(spawn_delay_event, gold_interval)
 
+    speed_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
+                 random.randrange(1, (resolution[1]//cell)) * cell]
+    speed_spawn = True
+    speed_slow = 0
+
 
 
     # 2. Game Loop
@@ -62,9 +68,6 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == spawn_delay_event:
-                golden_apple_spawn = True
-                pygame.time.set_timer(spawn_delay_event, 0)
             # Keyboard inputs for snake movement
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
@@ -75,15 +78,6 @@ def main():
                     change_direction = 'LEFT'
                 if event.key == pygame.K_d:
                     change_direction = 'RIGHT'
-        # Moving the snake
-        if direction == 'UP':
-            snake_pos[1] -= cell
-        if direction == 'DOWN':
-            snake_pos[1] += cell
-        if direction == 'LEFT':
-            snake_pos[0] -= cell
-        if direction == 'RIGHT':
-            snake_pos[0] += cell
         # Handles error, snake can't move in 2 directions at once
         if change_direction == 'UP' and direction != 'DOWN':
             direction = 'UP'
@@ -93,6 +87,15 @@ def main():
             direction = 'LEFT'
         if change_direction == 'RIGHT' and direction != 'LEFT':
             direction = 'RIGHT'
+        # Moving the snake
+        if direction == 'UP':
+            snake_pos[1] -= cell
+        if direction == 'DOWN':
+            snake_pos[1] += cell
+        if direction == 'LEFT':
+            snake_pos[0] -= cell
+        if direction == 'RIGHT':
+            snake_pos[0] += cell
 
             
         snake_body.insert(0, list(snake_pos))
@@ -111,13 +114,19 @@ def main():
             if len(snake_body) > 1:
                 snake_body.pop()
             golden_apple_spawn = False
-        else:
-            snake_body.pop
         if not golden_apple_spawn:
             golden_apple_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
                         random.randrange(1, (resolution[1]//cell)) * cell]
-            pygame.time.set_timer(spawn_delay_event, 5000)
             golden_apple_spawn = True
+
+        if snake_pos[0] == speed_pos[0] and snake_pos[1] == speed_pos[1]:
+            if speed_slow < score:
+                speed_slow += 50
+            speed_spawn = False
+        if not speed_spawn:
+            speed_pos = [random.randrange(1, (resolution[0]//cell)) * cell, 
+                        random.randrange(1, (resolution[1]//cell)) * cell]
+            speed_spawn = True
         
         screen.fill(black)
         for segment in snake_body:
@@ -130,6 +139,9 @@ def main():
         pygame.draw.rect(screen, gold, pygame.Rect(
             golden_apple_pos[0], golden_apple_pos[1], cell, cell))
         
+        pygame.draw.rect(screen, blue, pygame.Rect(
+            speed_pos[0], speed_pos[1], cell, cell))
+        
         if snake_pos[0] < 0 or snake_pos[0] > resolution[0] - cell:
             game_over(score, screen)
         if snake_pos[1] < 0 or snake_pos[1] > resolution[1] - cell:
@@ -140,7 +152,7 @@ def main():
 
         display_score(score, screen)
         pygame.display.flip()
-        clock.tick(game_speed)
+        clock.tick(game_speed + ((score - speed_slow)//50))
     # 3. Quit
     pygame.quit()
 
