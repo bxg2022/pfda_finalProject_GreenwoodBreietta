@@ -5,9 +5,29 @@ import time
 
 def display_score(current_score, surface):
     score_font = pygame.font.SysFont("impact", 20)
-    score_surface = score_font.render(f'Score : {current_score}', True, 
+    score_surface = score_font.render(f'Score: {current_score}', True, 
                                       pygame.Color(255, 255, 255))
     surface.blit(score_surface, (0, 0))
+
+def save_highscore(highscore):
+    with open("highscore.txt", 'w') as file:
+        file.write(str(highscore))
+
+def load_highscore():
+    try:
+        with open("highscore.txt", 'r') as file:
+            hs = file.read().strip()
+            if not hs:
+                return 0
+            return int(hs)
+    except FileNotFoundError:
+        return 0
+    
+def display_highscore(highscore, surface):
+    hs_font = pygame.font.SysFont("impact", 20)
+    hs_surface = hs_font.render(f'Highscore: {highscore}', True,
+                                pygame.Color(255, 255, 255))
+    surface.blit(hs_surface, (0, 25))
     
 def game_over(current_score, surface):
     font = pygame.font.SysFont('times new roman', 50)
@@ -16,6 +36,12 @@ def game_over(current_score, surface):
     game_over_rect = game_over_surface.get_rect()
     game_over_rect.midtop = (400, 200)
     surface.blit(game_over_surface, game_over_rect)
+    if save_highscore(current_score):
+        hs_surf = font.render("NEW HIGHSCORE!!!", True,
+                                pygame.Color(255, 255, 0))
+        hs_rect = hs_surf.get_rect()
+        hs_rect.top = (400, 0)
+        surface.blit(hs_surf, hs_rect)
     pygame.display.flip()
     time.sleep(3)
     pygame.quit()
@@ -30,6 +56,7 @@ def main():
     game_speed = 15
     cell = 10
     score = 0
+    highscore = load_highscore()
     black = pygame.Color(0, 0, 0)
     red = pygame.Color(255, 0, 0)
     green = pygame.Color(0, 255, 0)
@@ -66,6 +93,8 @@ def main():
         # Event Loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                if score > highscore:
+                    save_highscore(score)
                 running = False
             # Keyboard inputs for snake movement
             if event.type == pygame.KEYDOWN:
@@ -159,6 +188,7 @@ def main():
                 game_over(score, screen)
 
         display_score(score, screen)
+        display_highscore(highscore, screen)
         pygame.display.flip()
         clock.tick(game_speed + ((score - speed_slow)//50))
     # 3. Quit
