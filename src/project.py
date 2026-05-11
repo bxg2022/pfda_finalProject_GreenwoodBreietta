@@ -98,9 +98,7 @@ def main():
     direction = 'RIGHT'
     change_direction = direction
     
-    #snake = Snake()
     apple = Apple()
-    #golden_apple = GoldenApple()
     # Golden Apple startup
     golden_apple_pos = None
     golden_apple_spawn = False
