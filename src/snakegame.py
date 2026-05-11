@@ -30,17 +30,19 @@ def display_highscore(highscore, surface):
     surface.blit(hs_surface, (0, 25))
     
 def game_over(current_score, surface):
+    highscore = load_highscore()
     font = pygame.font.SysFont('times new roman', 50)
     game_over_surface = font.render(f'Game Over! \n Your Score is : {current_score}', True, 
                                     pygame.Color(255, 255, 255))
     game_over_rect = game_over_surface.get_rect()
     game_over_rect.midtop = (400, 200)
     surface.blit(game_over_surface, game_over_rect)
-    if save_highscore(current_score):
-        hs_surf = font.render("NEW HIGHSCORE!!!", True,
+    if current_score > highscore:
+        save_highscore(current_score)
+        hs_surf = font.render("!!!NEW HIGHSCORE!!!", True,
                                 pygame.Color(255, 255, 0))
         hs_rect = hs_surf.get_rect()
-        hs_rect.top = (400, 0)
+        hs_rect = (150, 0)
         surface.blit(hs_surf, hs_rect)
     pygame.display.flip()
     time.sleep(3)
@@ -93,8 +95,6 @@ def main():
         # Event Loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                if score > highscore:
-                    save_highscore(score)
                 running = False
             # Keyboard inputs for snake movement
             if event.type == pygame.KEYDOWN:
